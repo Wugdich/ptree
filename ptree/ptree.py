@@ -29,6 +29,7 @@ class _TreeGenerator:
     """Class traverses the file system and generates the directory tree
     diagram.
     """
+    # TODO: check if root_dir path exits
     def __init__(self, root_dir: str):
         self._root_dir = pathlib.Path(root_dir)
         self._tree = list()
@@ -58,6 +59,7 @@ class _TreeGenerator:
             else:
                 self._add_file(entry, prefix, connector)
 
+    # TODO: ignore some directories, like '.git'
     def _add_directory(
             self, directory: pathlib.Path, index: int, 
             entries_count: int, prefix: str, connector: str
