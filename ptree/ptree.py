@@ -4,7 +4,7 @@ import os
 import pathlib
 
 
-PIPE = "|"
+PIPE = "│"
 ELBOW = "└──"
 TEE = "├──"
 PIPE_PREFIX = "│   "
@@ -29,7 +29,7 @@ class _TreeGenerator:
     """Class traverses the file system and generates the directory tree
     diagram.
     """
-    # TODO: check if root_dir path exits
+    # TODO: check if root_dir path exists
     def __init__(self, root_dir: str):
         self._root_dir = pathlib.Path(root_dir)
         self._tree = list()
@@ -59,7 +59,7 @@ class _TreeGenerator:
             else:
                 self._add_file(entry, prefix, connector)
 
-    # TODO: ignore some directories, like '.git'
+    # TODO: add ignoring some directories, like '.git'
     def _add_directory(
             self, directory: pathlib.Path, index: int, 
             entries_count: int, prefix: str, connector: str
@@ -79,4 +79,3 @@ class _TreeGenerator:
     def _add_file(self, file: pathlib.Path, prefix: str, connector: str):
         """Appends a new file to the list represented a tree diagram."""
         self._tree.append(f"{prefix}{connector} {file.name}")
-
