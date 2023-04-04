@@ -17,3 +17,20 @@ def main():
         sys.exit()
     tree = DirectoryTree(root_dir)
     tree.generate()
+
+def parse_cmd_line_arguments():
+    parser = argparse.ArgumentParser(
+            prog="ptree",
+            description="ptree, a directory tree generator",
+            epilog="Thanks for using ptree!",
+            )
+    parser.version = f"ptree v{__version__}"
+    parser.add_argument("-v", "--version", action="version")
+    parser.add_argument(
+            "root_dir", 
+            metavar="ROOT_DIR",
+            nargs="?",
+            default=".",
+            help="Generate a full directory tree starting at ROOT_DIR",
+            )
+    return parser.parse_args()
