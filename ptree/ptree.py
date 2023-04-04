@@ -15,7 +15,7 @@ class DirectoryTree:
     """Class creates the directory tree diagram 
     and display it on the screen.
     """
-    def __init__(self, root_dir: str):
+    def __init__(self, root_dir: pathlib.Path):
         self._generator = _TreeGenerator(root_dir)
 
     def generate(self):
@@ -30,7 +30,7 @@ class _TreeGenerator:
     diagram.
     """
     # TODO: check if root_dir path exists
-    def __init__(self, root_dir: str):
+    def __init__(self, root_dir: pathlib.Path):
         self._root_dir = pathlib.Path(root_dir)
         self._tree = list()
 
