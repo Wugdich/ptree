@@ -16,7 +16,10 @@ def main():
         print(f"{root_dir!r} directory doesn't exist")
         sys.exit()
     tree = DirectoryTree(
-            root_dir, dir_only=args.dir_only, output_file=args.output_file
+            root_dir, 
+            dir_only=args.dir_only, 
+            output_file=args.output_file,
+            strict=args.strict
             )
     tree.generate()
 
@@ -48,5 +51,11 @@ def parse_cmd_line_arguments():
             nargs="?",
             default=sys.stdout,
             help="Generate a full directory tree and save it to a file",
+            )
+    parser.add_argument(
+            "-s",
+            "--strict",
+            action="store_true",
+            help="Stop ignoring directories like '.git', 'venv'"
             )
     return parser.parse_args()

@@ -17,7 +17,7 @@ SPACE_PREFIX = "    "
 # TODO: add support sorting files and directories
 # TODO: add icons and colors to the tree diagram
 # TODO: set up the application to publish it as an open source project
-# TODO: add ignoring some directories, like '.git'
+# TODO: add directories and files counter
 class DirectoryTree:
     """Class creates the directory tree diagram
     and steam it to the setted output file.
@@ -28,8 +28,9 @@ class DirectoryTree:
         root_dir: str | pathlib.Path,
         dir_only: bool = False,
         output_file: TextIO | str = sys.stdout,
+        strict: bool = False
     ):
-        self._generator = _TreeGenerator(root_dir, dir_only)
+        self._generator = _TreeGenerator(root_dir, dir_only, strict)
         self._output_file = output_file
 
     def generate(self):
@@ -53,9 +54,15 @@ class _TreeGenerator:
     diagram.
     """
 
-    def __init__(self, root_dir: str | pathlib.Path, dir_only: bool = False):
+    def __init__(
+            self, 
+            root_dir: str | pathlib.Path,
+            dir_only: bool = False,
+            strict: bool = False
+            ):
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
+        self._strict = strict
         self._tree = deque()
 
     def build_tree(self) -> deque[str]:
@@ -90,6 +97,7 @@ class _TreeGenerator:
                 files.append(entry)
             else:
                 directories.append(entry)
+        directories = self._apply_directories_filter(directories)
         if self._dir_only:
             return directories
         entries = sorted(
@@ -97,6 +105,19 @@ class _TreeGenerator:
                 key=lambda entry: entry.is_file()
                 )
         return entries
+
+    def _apply_directories_filter(
+            self,
+            directories: list[pathlib.Path]
+            ) -> list[pathlib.Path]:
+        """Reads directories' filter flags and apllies its"""
+        if not self._strict:
+            restricted_dirs = (".git", "venv")
+            restricted_dirs_paths = tuple(map(pathlib.Path, restricted_dirs))
+            directories = list(filter(
+                lambda d: d not in restricted_dirs_paths, directories
+                ))
+        return directories
 
     def _add_directory(
         self,
