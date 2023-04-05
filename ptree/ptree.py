@@ -14,12 +14,15 @@ PIPE_PREFIX = "│   "
 SPACE_PREFIX = "    "
 
 
+# TODO: add support sorting files and directories
+# TODO: add icons and colors to the tree diagram
+# TODO: set up the application to publish it as an open source project
+# TODO: add ignoring some directories, like '.git'
 class DirectoryTree:
     """Class creates the directory tree diagram
     and steam it to the setted output file.
     """
 
-    # TODO: add type hint to 'output_file' argument
     def __init__(
         self,
         root_dir: str | pathlib.Path,
@@ -80,13 +83,21 @@ class _TreeGenerator:
     def _prepare_entries(self, directory: pathlib.Path) -> list[pathlib.Path]:
         """Prepares entries according directory only argument"""
         entries = directory.iterdir()
+        directories = list()
+        files = list()
+        for entry in entries:
+            if entry.is_file():
+                files.append(entry)
+            else:
+                directories.append(entry)
         if self._dir_only:
-            entries = [entry for entry in entries if entry.is_dir()]
-            return entries
-        entries = sorted(entries, key=lambda entry: entry.is_file())
+            return directories
+        entries = sorted(
+                directories + files, 
+                key=lambda entry: entry.is_file()
+                )
         return entries
 
-    # TODO: add ignoring some directories, like '.git'
     def _add_directory(
         self,
         directory: pathlib.Path,
