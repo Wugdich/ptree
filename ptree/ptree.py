@@ -2,6 +2,9 @@
 
 import os
 import pathlib
+import sys
+from collections import deque
+from typing import TextIO
 
 
 PIPE = "│"
@@ -12,29 +15,47 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    """Class creates the directory tree diagram 
-    and display it on the screen.
+    """Class creates the directory tree diagram
+    and steam it to the setted output file.
     """
-    def __init__(self, root_dir: pathlib.Path, dir_only: bool=False):
+
+    # TODO: add type hint to 'output_file' argument
+    def __init__(
+        self,
+        root_dir: str | pathlib.Path,
+        dir_only: bool = False,
+        output_file: TextIO | str = sys.stdout,
+    ):
         self._generator = _TreeGenerator(root_dir, dir_only)
+        self._output_file = output_file
 
     def generate(self):
-        """Displays each component of the tree diagram on the screen"""
+        """Generates each building block of diagram and print it to the
+        setted stream.
+        """
         tree = self._generator.build_tree()
-        for entry in tree:
-            print(entry)
+        if self._output_file != sys.stdout:
+            tree.appendleft("```")
+            tree.append("```")
+            self._output_file = open(
+                    self._output_file, mode="w", encoding="UTF-8"
+                    )
+        with self._output_file as stream:
+            for entry in tree:
+                print(entry, file=stream)
 
 
 class _TreeGenerator:
     """Class traverses the file system and generates the directory tree
     diagram.
     """
-    def __init__(self, root_dir: pathlib.Path, dir_only: bool=False):
+
+    def __init__(self, root_dir: str | pathlib.Path, dir_only: bool = False):
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
-        self._tree = list()
+        self._tree = deque()
 
-    def build_tree(self) -> list[str]:
+    def build_tree(self) -> deque[str]:
         """Generates and returns the directory tree diagram."""
         self._tree_head()
         self._tree_body(self._root_dir)
@@ -45,16 +66,14 @@ class _TreeGenerator:
         self._tree.append(f"{self._root_dir}{os.sep}")
         self._tree.append(PIPE)
 
-    def _tree_body(self, directory: pathlib.Path, prefix: str=""):
+    def _tree_body(self, directory: pathlib.Path, prefix: str = ""):
         """Build a body of the tree."""
         entries = self._prepare_entries(directory)
         entries_count = len(entries)
         for index, entry in enumerate(entries):
             connector = ELBOW if index == entries_count - 1 else TEE
             if entry.is_dir():
-                self._add_directory(
-                        entry, index, entries_count, prefix, connector
-                        )
+                self._add_directory(entry, index, entries_count, prefix, connector)
             else:
                 self._add_file(entry, prefix, connector)
 
@@ -69,19 +88,20 @@ class _TreeGenerator:
 
     # TODO: add ignoring some directories, like '.git'
     def _add_directory(
-            self, directory: pathlib.Path, index: int, 
-            entries_count: int, prefix: str, connector: str
-            ):
+        self,
+        directory: pathlib.Path,
+        index: int,
+        entries_count: int,
+        prefix: str,
+        connector: str,
+    ):
         """Appends a new directory to the list represented a tree diagram."""
         self._tree.append(f"{prefix}{connector} {directory.name}{os.sep}")
         if index != entries_count - 1:
             prefix += PIPE_PREFIX
         else:
             prefix += SPACE_PREFIX
-        self._tree_body(
-                directory=directory,
-                prefix=prefix
-                )
+        self._tree_body(directory=directory, prefix=prefix)
         self._tree.append(prefix.rstrip())
 
     def _add_file(self, file: pathlib.Path, prefix: str, connector: str):
