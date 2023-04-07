@@ -26,7 +26,8 @@ def main():
 def parse_cmd_line_arguments():
     parser = argparse.ArgumentParser(
             prog="ptree",
-            description="ptree, a directory tree generator",
+            description=("ptree, a directory tree generator "
+                         "implemented in python"),
             epilog="Thanks for using ptree!",
             )
     parser.version = f"ptree v{__version__}"
