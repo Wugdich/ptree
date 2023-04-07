@@ -19,7 +19,6 @@ SPACE_PREFIX = "    "
 # TODO: add support sorting files and directories
 # TODO: add icons and colors to the tree diagram
 # TODO: set up the application to publish it as an open source project
-# TODO: add directories and files counter
 class DirectoryTree:
     """Class creates the directory tree diagram
     and steam it to the setted output file.
@@ -49,6 +48,11 @@ class DirectoryTree:
         with self._output_file as stream:
             for entry in tree:
                 print(entry, file=stream)
+            print(
+                    "\nTotal number: "
+                    f"directories - {self._generator.dir_counter}, "
+                    f"files - {self._generator.file_counter}."
+                    )
 
 
 class _TreeGenerator:
@@ -66,6 +70,16 @@ class _TreeGenerator:
         self._dir_only = dir_only
         self._strict = strict
         self._tree = deque()
+        self._dir_counter = 0
+        self._file_counter = 0
+
+    @property
+    def dir_counter(self):
+        return self._dir_counter
+
+    @property
+    def file_counter(self):
+        return self._file_counter
 
     def build_tree(self) -> deque[str]:
         """Generates and returns the directory tree diagram."""
@@ -121,6 +135,7 @@ class _TreeGenerator:
     ):
         """Appends a new directory to the list represented a tree diagram."""
         self._tree.append(f"{prefix}{connector} {directory.name}{os.sep}")
+        self._dir_counter += 1
         if index != entries_count - 1:
             prefix += PIPE_PREFIX
         else:
@@ -131,3 +146,4 @@ class _TreeGenerator:
     def _add_file(self, file: pathlib.Path, prefix: str, connector: str):
         """Appends a new file to the list represented a tree diagram."""
         self._tree.append(f"{prefix}{connector} {file.name}")
+        self._file_counter += 1

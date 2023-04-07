@@ -23,6 +23,7 @@ def main():
             )
     tree.generate()
 
+# TODO: prettify help output
 def parse_cmd_line_arguments():
     parser = argparse.ArgumentParser(
             prog="ptree",
