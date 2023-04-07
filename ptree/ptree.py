@@ -6,6 +6,8 @@ import sys
 from collections import deque
 from typing import TextIO
 
+from .containers import DirsContainer, FilesContainer
+
 
 PIPE = "│"
 ELBOW = "└──"
@@ -92,34 +94,22 @@ class _TreeGenerator:
     def _prepare_entries(self, directory: pathlib.Path) -> list[pathlib.Path]:
         """Prepares entries according used flags."""
         entries = directory.iterdir()
-        directories = list()
-        files = list()
+        dirs = DirsContainer()
+        files = FilesContainer()
         for entry in entries:
             if entry.is_file():
                 files.append(entry)
             else:
-                directories.append(entry)
-        directories = self._apply_directories_filter(directories)
+                dirs.append(entry)
+        if not self._strict:
+            dirs.del_dot_dirs()
         if self._dir_only:
-            return directories
+            return dirs.container
         entries = sorted(
-                directories + files, 
+                dirs.container + files.container, 
                 key=lambda entry: entry.is_file()
                 )
         return entries
-
-    def _apply_directories_filter(
-            self,
-            directories: list[pathlib.Path]
-            ) -> list[pathlib.Path]:
-        """Reads directories' filter flags and apllies its"""
-        if not self._strict:
-            restricted_dirs = (".git", ".venv")
-            restricted_dirs_paths = tuple(map(pathlib.Path, restricted_dirs))
-            directories = list(filter(
-                lambda d: d not in restricted_dirs_paths, directories
-                ))
-        return directories
 
     def _add_directory(
         self,
