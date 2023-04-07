@@ -83,12 +83,14 @@ class _TreeGenerator:
         for index, entry in enumerate(entries):
             connector = ELBOW if index == entries_count - 1 else TEE
             if entry.is_dir():
-                self._add_directory(entry, index, entries_count, prefix, connector)
+                self._add_directory(
+                        entry, index, entries_count, prefix, connector
+                        )
             else:
                 self._add_file(entry, prefix, connector)
 
     def _prepare_entries(self, directory: pathlib.Path) -> list[pathlib.Path]:
-        """Prepares entries according directory only argument"""
+        """Prepares entries according used flags."""
         entries = directory.iterdir()
         directories = list()
         files = list()
@@ -112,7 +114,7 @@ class _TreeGenerator:
             ) -> list[pathlib.Path]:
         """Reads directories' filter flags and apllies its"""
         if not self._strict:
-            restricted_dirs = (".git", "venv")
+            restricted_dirs = (".git", ".venv")
             restricted_dirs_paths = tuple(map(pathlib.Path, restricted_dirs))
             directories = list(filter(
                 lambda d: d not in restricted_dirs_paths, directories
